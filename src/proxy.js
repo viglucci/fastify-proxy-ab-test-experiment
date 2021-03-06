@@ -22,9 +22,11 @@ proxy.register(require('fastify-reply-from'), {
 
 proxy.get('*', (request, reply) => {
     const variant = getVariant();
+    const { query } = request;
     reply.from(request.url, {
         queryString: {
-            variant
+            variant,
+            ...query
         }
     });
 });
