@@ -1,4 +1,5 @@
 const Fastify = require('fastify');
+const throng = require('throng');
 
 function randomIntFromInterval(min, max) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min);
@@ -13,7 +14,15 @@ function getVariant() {
 }
 
 const proxy = Fastify({
-    logger: true
+    logger: false,
+    undici: {
+        connections: 128,
+        pipelining: 1,
+        keepAliveTimeout: 60 * 1000,
+        tls: {
+            rejectUnauthorized: false
+        }
+    }
 });
 
 proxy.register(require('fastify-reply-from'), {
@@ -31,8 +40,16 @@ proxy.get('*', (request, reply) => {
     });
 });
 
-proxy.listen(3000, (err) => {
-    if (err) {
-        throw err
+const port = process.env.PORT || 3000;
+
+throng({
+    workers: 2,
+    worker: (id) => {
+        proxy.listen(port, (err) => {
+            if (err) {
+                throw err
+            }
+            proxy.log.info(`Proxy worker ${id} listening on port ${port}`);
+        });
     }
 });

@@ -1,7 +1,8 @@
 const Fastify = require('fastify');
+const throng = require('throng');
 
 const target = Fastify({
-    logger: true
+    logger: false
 });
 
 target.get('/', (request, reply) => {
@@ -16,8 +17,16 @@ target.get('/', (request, reply) => {
         });
 });
 
-target.listen(3001, (err) => {
-    if (err) {
-        throw err
+const port = process.env.PORT || 3001;
+
+throng({
+    workers: 2,
+    worker: (id) => {
+        target.listen(port, (err) => {
+            if (err) {
+                throw err
+            }
+            target.log.info(`Target worker ${id} listening on port ${port}`);
+        });
     }
 });

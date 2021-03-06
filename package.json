@@ -21,7 +21,8 @@
   "homepage": "https://github.com/viglucci/fastify-proxy-ab-test-experiment#readme",
   "dependencies": {
     "fastify": "^3.13.0",
-    "fastify-reply-from": "^5.0.2"
+    "fastify-reply-from": "^5.0.2",
+    "throng": "^5.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.7",
