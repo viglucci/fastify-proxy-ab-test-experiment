@@ -1,8 +1,10 @@
 const Fastify = require('fastify');
 const throng = require('throng');
 
+const port = process.env.TARGET_PORT || 3001;
+
 const target = Fastify({
-    logger: false
+    logger: process.env.LOGGING || false,
 });
 
 target.get('/', (request, reply) => {
@@ -16,8 +18,6 @@ target.get('/', (request, reply) => {
             }
         });
 });
-
-const port = process.env.PORT || 3001;
 
 throng({
     workers: 2,

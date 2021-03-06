@@ -6,15 +6,15 @@ function randomIntFromInterval(min, max) { // min and max included
 }
 
 function getVariant() {
-    const number = randomIntFromInterval(0, 99);
-    if (number >= 49) {
-        return "B";
-    }
-    return "A";
+    const rand = randomIntFromInterval(0, 99);
+    return rand >= 49 ? "B" : "A";
 }
 
+const port = process.env.TARGET_PORT || 3000;
+const targetPort = process.env.PROXY_PORT || 3001;
+
 const proxy = Fastify({
-    logger: false,
+    logger: process.env.LOGGING || false,
     undici: {
         connections: 128,
         pipelining: 1,
@@ -26,7 +26,7 @@ const proxy = Fastify({
 });
 
 proxy.register(require('fastify-reply-from'), {
-    base: 'http://localhost:3001/'
+    base: `http://localhost:${targetPort}/`
 });
 
 proxy.get('*', (request, reply) => {
@@ -39,8 +39,6 @@ proxy.get('*', (request, reply) => {
         }
     });
 });
-
-const port = process.env.PORT || 3000;
 
 throng({
     workers: 2,
