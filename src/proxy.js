@@ -25,6 +25,14 @@ const proxy = Fastify({
     }
 });
 
+proxy.register(require('under-pressure'), {
+    maxEventLoopDelay: 1000,
+    maxHeapUsedBytes: 100000000,
+    maxRssBytes: 100000000,
+    maxEventLoopUtilization: 0.98,
+    message: 'Service Unavailable'
+});
+
 proxy.register(require('fastify-reply-from'), {
     base: `http://localhost:${targetPort}/`
 });
@@ -41,7 +49,7 @@ proxy.get('*', (request, reply) => {
 });
 
 throng({
-    workers: 2,
+    workers: 4,
     worker: (id) => {
         proxy.listen(port, (err) => {
             if (err) {
